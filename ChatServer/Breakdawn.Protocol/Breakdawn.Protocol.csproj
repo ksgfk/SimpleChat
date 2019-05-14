@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp2.2</TargetFramework>
+    <RootNamespace>Breakdawn.Protocol</RootNamespace>
+    <Version>0.0.1</Version>
+    <Authors>KSGFK</Authors>
+    <Copyright>KSGFK</Copyright>
+    <RepositoryUrl>https://github.com/ksgfk/SimpleChat</RepositoryUrl>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <OutputPath>E:\ProjectUnity\SimpleChat\lib\</OutputPath>
+  </PropertyGroup>
+
+</Project>
