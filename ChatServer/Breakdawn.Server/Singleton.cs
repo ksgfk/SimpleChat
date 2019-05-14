@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Breakdawn
+namespace Breakdawn.Server
 {
 	public class Singleton<T> where T : class
 	{

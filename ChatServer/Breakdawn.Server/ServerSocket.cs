@@ -5,7 +5,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Threading;
 
-namespace Breakdawn
+namespace Breakdawn.Server
 {
 	internal class ServerSocket : Singleton<ServerSocket>
 	{
@@ -22,7 +22,6 @@ namespace Breakdawn
 			InitSocket("127.0.0.1", 25565);
 			serverThread = new Thread(Update);
 			serverThread.Start();
-			//receiveThread = new Thread();
 		}
 
 		private void InitSocket(string ip, int port)

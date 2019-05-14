@@ -37,7 +37,7 @@ namespace Breakdawn.Protocol
 				headBuffer = new byte[headLength];
 				headIndex = 0;
 				socket.BeginReceive(headBuffer, 0, headLength, SocketFlags.None, new AsyncCallback(HeadMessageCallBack), this);
-				DawnUtil.Log($"会话:{id},开始接收头协议", LogLevel.Info);
+				//DawnUtil.Log($"会话:{id},开始接收头协议", LogLevel.Info);
 			}
 			catch (Exception e)
 			{
@@ -68,7 +68,7 @@ namespace Breakdawn.Protocol
 						cmdBuffer = new byte[BitConverter.ToInt32(headBuffer)];
 						cmdIndex = 0;
 						socket.BeginReceive(cmdBuffer, 0, cmdLength, SocketFlags.None, new AsyncCallback(ReceiveCmdMessage), result.AsyncState);
-						DawnUtil.Log($"会话:{id},开始接收命令协议", LogLevel.Info);
+						//DawnUtil.Log($"会话:{id},开始接收命令协议", LogLevel.Info);
 					}
 				}
 				else
@@ -97,8 +97,8 @@ namespace Breakdawn.Protocol
 					}
 					else
 					{
-						DawnUtil.Log($"会话:{id},命令{(Command)BitConverter.ToInt32(cmdBuffer)}", LogLevel.Info);
-						DawnUtil.Log($"会话:{id},命令协议接收完成,暂未实现主体,开始下一轮", LogLevel.Info);
+						//DawnUtil.Log($"会话:{id},命令{(Command)BitConverter.ToInt32(cmdBuffer)}", LogLevel.Info);
+						//DawnUtil.Log($"会话:{id},命令协议接收完成,暂未实现主体,开始下一轮", LogLevel.Info);
 						headBuffer = new byte[headLength];
 						headIndex = 0;
 						socket.BeginReceive(headBuffer, 0, headLength, SocketFlags.None, new AsyncCallback(HeadMessageCallBack), result.AsyncState);

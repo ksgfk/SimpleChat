@@ -3,7 +3,7 @@ using log4net;
 using System.Diagnostics;
 using System.Threading;
 
-namespace Breakdawn
+namespace Breakdawn.Server
 {
 	public class JellyWar
 	{

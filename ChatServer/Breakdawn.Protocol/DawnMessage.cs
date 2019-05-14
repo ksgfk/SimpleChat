@@ -11,9 +11,8 @@ namespace Breakdawn.Protocol
 	[Serializable]
 	public class DawnMessage
 	{
-		public int cmd;
-		public int err;
-
+		//public int cmd;
+		//public int err;
 		public string charMessage;
 	}
 }

@@ -3,7 +3,7 @@ using log4net.Config;
 using log4net.Repository;
 using System.IO;
 
-namespace Breakdawn
+namespace Breakdawn.Server
 {
 	public class LogConfig : Singleton<LogConfig>
 	{
