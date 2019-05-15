@@ -3,7 +3,7 @@ using System.Net.Sockets;
 
 namespace Breakdawn.Protocol
 {
-	public class DawnSession
+	public abstract class DawnSession
 	{
 		private readonly int id;
 		private readonly Socket socket;
@@ -13,36 +13,44 @@ namespace Breakdawn.Protocol
 		private byte[] bodyBuffer;
 		private int headIndex;
 		private int cmdIndex;
-		private Action<DawnSession> afterReceive;
+		private int bodyIndex;
+		private int bodyLength;
 
 		public Socket Socket { get => socket; }
 		public byte[] HeadBuffer { get => headBuffer; }
 		public byte[] CmdBuffer { get => cmdBuffer; }
 		public int SurvivalCount { get => survivalCount; set => survivalCount = value; }
+		public int ID => id;
 
 		public static int headLength = 4;
 		public static int cmdLength = 4;
 
-		public DawnSession(int id, Socket socket, Action<DawnSession> afterReceive = null)
+		public DawnSession(int id, Socket socket)
 		{
 			this.id = id;
 			this.socket = socket;
-			this.afterReceive = afterReceive;
 		}
+
+		protected abstract void OnConnected();
+
+		protected abstract void OnReceiveCommand();
+
+		protected abstract void OnReceiveBody();
+
+		protected abstract void OnCloseConnect();
 
 		public void ReceiveHeadMessage()
 		{
 			try
 			{
+				OnConnected();
 				headBuffer = new byte[headLength];
 				headIndex = 0;
 				socket.BeginReceive(headBuffer, 0, headLength, SocketFlags.None, new AsyncCallback(HeadMessageCallBack), this);
-				//DawnUtil.Log($"会话:{id},开始接收头协议", LogLevel.Info);
 			}
 			catch (Exception e)
 			{
-				DawnUtil.Log(e.Message, LogLevel.Error);
-				DawnUtil.Log(e.StackTrace, LogLevel.Error);
+				DawnUtil.Log($"{e.Message}\n{e.StackTrace}", LogLevel.Error);
 			}
 		}
 
@@ -65,10 +73,9 @@ namespace Breakdawn.Protocol
 					}
 					else
 					{
-						cmdBuffer = new byte[BitConverter.ToInt32(headBuffer)];
+						cmdBuffer = new byte[cmdLength];
 						cmdIndex = 0;
 						socket.BeginReceive(cmdBuffer, 0, cmdLength, SocketFlags.None, new AsyncCallback(ReceiveCmdMessage), result.AsyncState);
-						//DawnUtil.Log($"会话:{id},开始接收命令协议", LogLevel.Info);
 					}
 				}
 				else
@@ -78,8 +85,7 @@ namespace Breakdawn.Protocol
 			}
 			catch (Exception e)
 			{
-				DawnUtil.Log(e.Message, LogLevel.Error);
-				DawnUtil.Log(e.StackTrace, LogLevel.Error);
+				DawnUtil.Log($"{e.Message}\n{e.StackTrace}", LogLevel.Error);
 			}
 		}
 
@@ -97,12 +103,12 @@ namespace Breakdawn.Protocol
 					}
 					else
 					{
-						//DawnUtil.Log($"会话:{id},命令{(Command)BitConverter.ToInt32(cmdBuffer)}", LogLevel.Info);
-						//DawnUtil.Log($"会话:{id},命令协议接收完成,暂未实现主体,开始下一轮", LogLevel.Info);
-						headBuffer = new byte[headLength];
-						headIndex = 0;
-						socket.BeginReceive(headBuffer, 0, headLength, SocketFlags.None, new AsyncCallback(HeadMessageCallBack), result.AsyncState);
-						afterReceive(this);
+						int allLength = BitConverter.ToInt32(headBuffer, 0);
+						bodyLength = allLength - headLength - cmdLength;
+						bodyBuffer = new byte[bodyLength];
+						bodyIndex = 0;
+						socket.BeginReceive(bodyBuffer, 0, bodyLength, SocketFlags.None, new AsyncCallback(ReceiveBodyMessage), result.AsyncState);
+						OnReceiveCommand();
 					}
 				}
 				else
@@ -112,8 +118,39 @@ namespace Breakdawn.Protocol
 			}
 			catch (Exception e)
 			{
-				DawnUtil.Log(e.Message, LogLevel.Error);
-				DawnUtil.Log(e.StackTrace, LogLevel.Error);
+				DawnUtil.Log($"{e.Message}\n{e.StackTrace}", LogLevel.Error);
+			}
+		}
+
+		private void ReceiveBodyMessage(IAsyncResult result)
+		{
+			try
+			{
+				int length = socket.EndReceive(result);
+				int cmd = BitConverter.ToInt32(cmdBuffer, 0);
+				if (length > 0 || cmd == (int)Command.HeartbeatClient || cmd == (int)Command.HeartbeatServer)
+				{
+					bodyIndex += length;
+					if (bodyIndex < bodyLength)
+					{
+						socket.BeginReceive(bodyBuffer, bodyIndex, bodyLength - length, SocketFlags.None, new AsyncCallback(ReceiveBodyMessage), result.AsyncState);
+					}
+					else
+					{
+						headBuffer = new byte[headLength];
+						headIndex = 0;
+						socket.BeginReceive(headBuffer, 0, headLength, SocketFlags.None, new AsyncCallback(HeadMessageCallBack), result.AsyncState);
+						OnReceiveBody();
+					}
+				}
+				else
+				{
+					CloseConnect();
+				}
+			}
+			catch (Exception e)
+			{
+				DawnUtil.Log($"{e.Message}\n{e.StackTrace}", LogLevel.Error);
 			}
 		}
 
@@ -121,7 +158,7 @@ namespace Breakdawn.Protocol
 		{
 			socket.Close();
 			DawnUtil.Log($"会话:{id},已关闭连接", LogLevel.Info);
-			//TODO:删除表中的客户端
+			OnCloseConnect();
 		}
 	}
 }

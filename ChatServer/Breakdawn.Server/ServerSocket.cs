@@ -16,6 +16,8 @@ namespace Breakdawn.Server
 		private int clientCount = 0;
 		public static readonly int defaultServiveCount = 5;
 
+		public ConcurrentDictionary<int, DawnSession> Clients { get => clients; set => clients = value; }
+
 		public ServerSocket()
 		{
 			socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
@@ -34,8 +36,7 @@ namespace Breakdawn.Server
 			}
 			catch (Exception e)
 			{
-				JellyWar.Logger.Error(e.Message);
-				JellyWar.Logger.Error(e.StackTrace);
+				JellyWar.Logger.Error($"{e.Message}\n{e.StackTrace}");
 			}
 		}
 
@@ -46,22 +47,7 @@ namespace Breakdawn.Server
 				Socket client = socket.EndAccept(result);
 				clientCount++;
 				int tryCount = 1;
-				var session = new DawnSession(clientCount, client, (s) =>
-				 {
-					 var cmd = (Command)BitConverter.ToInt32(s.CmdBuffer, 0);
-					 switch (cmd)
-					 {
-						 case Command.HeartbeatServer:
-							 JellyWar.Logger.Error($"客户端心跳包命令出错!");
-							 break;
-						 case Command.HeartbeatClient:
-							 s.SurvivalCount = defaultServiveCount;
-							 break;
-						 default:
-							 JellyWar.Logger.Error($"客户端返回命令出错!");
-							 break;
-					 }
-				 });
+				var session = new ClientSession(clientCount, client);
 				while (!clients.TryAdd(clientCount, session))
 				{
 					JellyWar.Logger.Warn($"无法将客户端添加到列表,重新尝试{tryCount}");
@@ -77,8 +63,7 @@ namespace Breakdawn.Server
 			}
 			catch (Exception e)
 			{
-				JellyWar.Logger.Error(e.Message);
-				JellyWar.Logger.Error(e.StackTrace);
+				JellyWar.Logger.Error($"{e.Message}\n{e.StackTrace}");
 			}
 			socket.BeginAccept(new AsyncCallback(ClientAccept), socket);
 		}
@@ -103,8 +88,7 @@ namespace Breakdawn.Server
 			}
 			catch (Exception e)
 			{
-				JellyWar.Logger.Error(e.Message);
-				JellyWar.Logger.Error(e.StackTrace);
+				JellyWar.Logger.Error($"{e.Message}\n{e.StackTrace}");
 			}
 		}
 
@@ -115,14 +99,14 @@ namespace Breakdawn.Server
 				try
 				{
 					var ns = new NetworkStream(client.Value.Socket);
-					var pack = DawnUtil.PacketMessage<DawnMessage>(Command.HeartbeatServer);
+					var body = DawnUtil.AddCommand(Command.HeartbeatServer);
+					var pack = DawnUtil.AddHeadProtocol(body);
 					ns.BeginWrite(pack, 0, pack.Length, new AsyncCallback(OnSendFinish), ns);
 				}
 				catch (Exception e)
 				{
 					willClearClients.Enqueue(client.Key);
-					JellyWar.Logger.Error(e.Message);
-					JellyWar.Logger.Error(e.StackTrace);
+					JellyWar.Logger.Error($"{e.Message}\n{e.StackTrace}");
 				}
 			}
 			foreach (var client in willClearClients)

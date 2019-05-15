@@ -2,7 +2,7 @@
 
 namespace Breakdawn.Protocol
 {
-	public enum Command : uint
+	public enum Command
 	{
 		HeartbeatServer = 100,
 		HeartbeatClient = 101

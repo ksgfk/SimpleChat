@@ -27,10 +27,9 @@ namespace Breakdawn.Protocol
 		public static byte[] AddHeadProtocol(byte[] message)
 		{
 			var length = message.Length;
-			var result = new byte[length + 4];
-			byte[] head = BitConverter.GetBytes(length);
-			Buffer.BlockCopy(head, 0, result, 0, 4);
-			Buffer.BlockCopy(message, 0, result, 4, length);
+			byte[] head = new byte[4];
+			BitConverter.GetBytes(length + 4).CopyTo(head, 0);
+			var result = AddMessage(head, message, CopyLocation.Head);
 			return result;
 		}
 
@@ -90,18 +89,20 @@ namespace Breakdawn.Protocol
 			}
 		}
 
-		public static byte[] PacketMessage<T>(Command command, T message = null) where T : class
+		public static byte[] AddCommand(Command command, byte[] message = null)
 		{
 			byte[] res;
+			var cmd = (int)command;
 			if (message != null)
 			{
-				res = AddMessage(BitConverter.GetBytes((int)command), Serialize(message), CopyLocation.Head);
+				res = AddMessage(BitConverter.GetBytes(cmd), Serialize(message), CopyLocation.Head);
 			}
 			else
 			{
-				res = BitConverter.GetBytes((int)command);
+				var t = BitConverter.GetBytes(cmd);
+				res = BitConverter.GetBytes(cmd);
 			}
-			return AddHeadProtocol(res);
+			return res;
 		}
 
 		public static void Log(string log, LogLevel level)
