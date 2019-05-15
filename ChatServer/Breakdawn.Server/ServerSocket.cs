@@ -9,14 +9,14 @@ namespace Breakdawn.Server
 {
 	internal class ServerSocket : Singleton<ServerSocket>
 	{
-		private Socket socket;
-		private Thread serverThread;
-		private ConcurrentDictionary<int, DawnSession> clients = new ConcurrentDictionary<int, DawnSession>();
-		private ConcurrentQueue<int> willClearClients = new ConcurrentQueue<int>();
+		private readonly Socket socket;
+		private readonly Thread serverThread;
+		private readonly ConcurrentDictionary<int, DawnSession> clients = new ConcurrentDictionary<int, DawnSession>();
+		private readonly ConcurrentQueue<int> willClearClients = new ConcurrentQueue<int>();
 		private int clientCount = 0;
 		public static readonly int defaultServiveCount = 5;
 
-		public ConcurrentDictionary<int, DawnSession> Clients { get => clients; set => clients = value; }
+		public ConcurrentDictionary<int, DawnSession> Clients { get => clients; }
 
 		public ServerSocket()
 		{

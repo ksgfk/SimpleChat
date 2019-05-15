@@ -1,7 +1,7 @@
 ﻿using Breakdawn.Protocol;
 using log4net;
+using System;
 using System.Diagnostics;
-using System.Threading;
 
 namespace Breakdawn.Server
 {
@@ -38,9 +38,12 @@ namespace Breakdawn.Server
 			sw.Stop();
 			Logger.Info($"Done({sw.ElapsedMilliseconds}ms)!");
 
-			while (true)
+			while (true)//emm,mc控制台命令是怎么做到的...
 			{
-				Thread.Sleep(10000);
+				if (Console.ReadLine() == "stop")//应该不会阻塞线程,毕竟操作都是在其他线程里
+				{
+					Environment.Exit(0);
+				}
 			}
 		}
 	}

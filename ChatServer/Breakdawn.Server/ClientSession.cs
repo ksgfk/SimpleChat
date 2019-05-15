@@ -36,7 +36,7 @@ namespace Breakdawn.Server
 					break;
 				case Command.HeartbeatClient:
 					SurvivalCount = 5;
-					JellyWar.Logger.Info($"收到{ID}的心跳包");
+					//JellyWar.Logger.Info($"收到{ID}的心跳包");
 					break;
 				default:
 					JellyWar.Logger.Error($"客户端返回命令出错!");

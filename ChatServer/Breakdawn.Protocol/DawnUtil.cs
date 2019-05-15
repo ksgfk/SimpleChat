@@ -20,8 +20,6 @@ namespace Breakdawn.Protocol
 
 	public static class DawnUtil
 	{
-		public static byte[] HeartBeatPacket { get; } = AddHeadProtocol(Encoding.UTF8.GetBytes("r u ok"));
-		public static byte[] Recover { get; } = AddHeadProtocol(Encoding.UTF8.GetBytes("y"));
 		public static Action<string, LogLevel> LogAction { get; set; }
 
 		public static byte[] AddHeadProtocol(byte[] message)
