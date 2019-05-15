@@ -11,7 +11,7 @@
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <OutputPath>E:\ProjectUnity\SimpleChat\lib\</OutputPath>
+    <OutputPath>E:\ProjectUnity\SimpleChat\ChatClient\Assets\Plugins\</OutputPath>
   </PropertyGroup>
 
 </Project>
