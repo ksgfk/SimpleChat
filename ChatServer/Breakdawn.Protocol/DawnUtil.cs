@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Net.Sockets;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
 
@@ -126,6 +127,34 @@ namespace Breakdawn.Protocol
 						Console.WriteLine($"[Error]:{log}");
 						break;
 				}
+			}
+		}
+
+		public static void SendMessage(Socket s, byte[] message)
+		{
+			try
+			{
+				var ns = new NetworkStream(s);
+				ns.BeginWrite(message, 0, message.Length, new AsyncCallback(OnSendFinish), ns);
+			}
+			catch (Exception e)
+			{
+				Log($"{e.Message}\n{e.StackTrace}", LogLevel.Error);
+			}
+		}
+
+		private static void OnSendFinish(IAsyncResult result)
+		{
+			try
+			{
+				var ns = result.AsyncState as NetworkStream;
+				ns.EndWrite(result);
+				ns.Flush();
+				ns.Close();
+			}
+			catch (Exception e)
+			{
+				Log($"{e.Message}\n{e.StackTrace}", LogLevel.Error);
 			}
 		}
 	}

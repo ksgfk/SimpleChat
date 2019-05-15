@@ -11,7 +11,7 @@
 
   <ItemGroup>
     <Reference Include="Breakdawn.Protocol">
-      <HintPath>..\..\lib\netcoreapp2.2\Breakdawn.Protocol.dll</HintPath>
+      <HintPath>..\..\ChatClient\Assets\Plugins\netcoreapp2.2\Breakdawn.Protocol.dll</HintPath>
     </Reference>
   </ItemGroup>
 

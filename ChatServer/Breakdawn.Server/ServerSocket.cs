@@ -46,17 +46,10 @@ namespace Breakdawn.Server
 			{
 				Socket client = socket.EndAccept(result);
 				clientCount++;
-				int tryCount = 1;
 				var session = new ClientSession(clientCount, client);
-				while (!clients.TryAdd(clientCount, session))
+				if (!clients.TryAdd(clientCount, session))
 				{
-					JellyWar.Logger.Warn($"无法将客户端添加到列表,重新尝试{tryCount}");
-					if (tryCount > 5)
-					{
-						JellyWar.Logger.Error($"尝试次数超过{tryCount},跳过");
-						break;
-					}
-					tryCount++;
+					JellyWar.Logger.Warn($"无法将客户端添加到列表");
 				}
 				session.ReceiveHeadMessage();
 				JellyWar.Logger.Info($"{(client.RemoteEndPoint as IPEndPoint).Address}:{(client.RemoteEndPoint as IPEndPoint).Port} connected");
@@ -99,6 +92,10 @@ namespace Breakdawn.Server
 				try
 				{
 					var ns = new NetworkStream(client.Value.Socket);
+					if (!ns.CanWrite)
+					{
+						continue;
+					}
 					var body = DawnUtil.AddCommand(Command.HeartbeatServer);
 					var pack = DawnUtil.AddHeadProtocol(body);
 					ns.BeginWrite(pack, 0, pack.Length, new AsyncCallback(OnSendFinish), ns);
@@ -111,16 +108,9 @@ namespace Breakdawn.Server
 			}
 			foreach (var client in willClearClients)
 			{
-				int tryCount = 0;
-				while (!clients.TryRemove(client, out _))
+				if (!clients.TryRemove(client, out _))
 				{
-					JellyWar.Logger.Warn($"无法将客户端添加到列表,重新尝试{tryCount}");
-					if (tryCount > 5)
-					{
-						JellyWar.Logger.Error($"尝试次数超过{tryCount},跳过");
-						break;
-					}
-					tryCount++;
+					JellyWar.Logger.Warn($"无法将客户端从列表删除");
 				}
 				JellyWar.Logger.Info($"已删除断开连接的客户端:{client}");
 			}
