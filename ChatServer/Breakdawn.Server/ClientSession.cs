@@ -1,5 +1,4 @@
 ﻿using Breakdawn.Protocol;
-using System;
 using System.Net.Sockets;
 
 namespace Breakdawn.Server
@@ -33,7 +32,8 @@ namespace Breakdawn.Server
 
 					break;
 				case Command.ChatMessage:
-					ProcessCommand.Instance.ChatQueue.Enqueue(message.charMessage);
+					ProcessCommand.Instance.ChatQueue.Enqueue(message);
+					JellyWar.Logger.Info($"[会话{ID}][{message.nickName}]:{message.charMessage}");
 					ProcessCommand.Instance.SendChatMessage();
 					break;
 				default:

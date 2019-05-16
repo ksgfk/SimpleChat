@@ -15,6 +15,7 @@ namespace Breakdawn.Protocol
 	{
 		public Command cmd;
 
+		public string nickName;
 		public string charMessage;
 	}
 }

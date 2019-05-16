@@ -11,7 +11,7 @@ public class RoomPanelControl : MonoBehaviour
 	public ScrollRect scrollRect;
 	public string username;
 
-	private ServerSession session;
+	public ServerSession session;
 
 	private void Awake()
 	{
@@ -33,11 +33,6 @@ public class RoomPanelControl : MonoBehaviour
 					break;
 			}
 		};
-
-		var socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-		socket.Connect(new IPEndPoint(IPAddress.Parse("127.0.0.1"), 25565));
-		session = new ServerSession(0, socket);
-		session.ReceiveHeadMessage();
 	}
 
 	public void OnSendButtonClick()
@@ -56,6 +51,7 @@ public class RoomPanelControl : MonoBehaviour
 			var msg = new DawnMessage
 			{
 				cmd = Command.ChatMessage,
+				nickName = username,
 				charMessage = chatInput.text,
 			};
 			var body = Utils.Serialize(msg);

@@ -1,5 +1,4 @@
-﻿using System;
-using System.Net.Sockets;
+﻿using System.Net.Sockets;
 using Breakdawn.Protocol;
 using UnityEngine;
 
@@ -39,7 +38,7 @@ public class ServerSession : DawnSession
 				Debug.LogError("聊天信息命令错误");
 				break;
 			case Command.ReceiveChat:
-				ProcessCommand.Instance.ChatQueue.Enqueue(message.charMessage);
+				ProcessCommand.Instance.ChatQueue.Enqueue($"{message.nickName}:{message.charMessage}");
 				break;
 			default:
 				Debug.LogError("命令错误");

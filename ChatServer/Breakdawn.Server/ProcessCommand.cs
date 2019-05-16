@@ -1,17 +1,13 @@
 ﻿using Breakdawn.Protocol;
-using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Text;
-using System.Threading;
 
 namespace Breakdawn.Server
 {
 	internal class ProcessCommand : Singleton<ProcessCommand>
 	{
-		private ConcurrentQueue<string> chatQueue = new ConcurrentQueue<string>();
+		private ConcurrentQueue<DawnMessage> chatQueue = new ConcurrentQueue<DawnMessage>();
 
-		public ConcurrentQueue<string> ChatQueue { get => chatQueue; }
+		public ConcurrentQueue<DawnMessage> ChatQueue { get => chatQueue; }
 
 		private ProcessCommand()
 		{
@@ -24,12 +20,8 @@ namespace Breakdawn.Server
 			{
 				return;
 			}
-			var m = new DawnMessage
-			{
-				cmd = Command.ReceiveChat,
-				charMessage = msg,
-			};
-			byte[] pack = DawnUtil.PackageMessage(m);
+			msg.cmd = Command.ReceiveChat;
+			byte[] pack = DawnUtil.PackageMessage(msg);
 			foreach (var client in ServerSocket.Instance.Clients)
 			{
 				DawnUtil.SendMessage(client.Value.Socket, pack);
