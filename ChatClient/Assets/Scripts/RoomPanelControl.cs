@@ -56,7 +56,6 @@ public class RoomPanelControl : MonoBehaviour
 
 	private void OnDestroy()
 	{
-		session?.Socket?.Shutdown(SocketShutdown.Both);
 		session?.Socket?.Close();
 	}
 }

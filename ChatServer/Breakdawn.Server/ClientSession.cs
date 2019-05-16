@@ -23,23 +23,18 @@ namespace Breakdawn.Server
 
 		protected override void OnReceiveBody()
 		{
-
-		}
-
-		protected override void OnReceiveCommand()
-		{
-			var cmd = (Command)BitConverter.ToInt32(CmdBuffer, 0);
-			switch (cmd)
+			var message = DawnUtil.DeSerialize<DawnMessage>(BodyBuffer);
+			switch (message.cmd)
 			{
 				case Command.HeartbeatServer:
-					JellyWar.Logger.Error($"客户端心跳包命令出错!");
+					JellyWar.Logger.Error($"心跳命令错误");
 					break;
 				case Command.HeartbeatClient:
-					SurvivalCount = 5;
-					//JellyWar.Logger.Info($"收到{ID}的心跳包");
+					break;
+				case Command.ChatMessage:
 					break;
 				default:
-					JellyWar.Logger.Error($"客户端返回命令出错!");
+					JellyWar.Logger.Error($"心跳命令错误");
 					break;
 			}
 		}

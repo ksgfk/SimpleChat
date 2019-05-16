@@ -22,52 +22,24 @@ public class ServerSession : DawnSession
 
 	protected override void OnReceiveBody()
 	{
-		
-	}
-
-	protected override void OnReceiveCommand()
-	{
-		var res = BitConverter.ToInt32(CmdBuffer, 0);
-		Debug.Log(res);
-		Command cmd = (Command)res;
-		switch (cmd)
+		var message = Utils.DeSerialize<DawnMessage>(BodyBuffer);
+		switch (message.cmd)
 		{
 			case Command.HeartbeatServer:
-				var pack = DawnUtil.AddHeadProtocol(DawnUtil.AddCommand(Command.HeartbeatClient));
-				SendMessage(pack);
+				var heart = new DawnMessage { cmd = Command.HeartbeatClient };
+				var body = Utils.Serialize(heart);
+				var pack = Utils.AddHeadProtocol(body);
+				Debug.Log("回复心跳");
+				Utils.SendMessage(Socket, pack);
 				break;
 			case Command.HeartbeatClient:
-				throw new Exception("服务器出错");
+				Debug.LogError("心跳命令错误");
+				break;
+			case Command.ChatMessage:
+				break;
 			default:
-				throw new Exception("服务器出错");
-		}
-	}
-
-	public void SendMessage(byte[] message)
-	{
-		try
-		{
-			var ns = new NetworkStream(Socket);
-			ns.BeginWrite(message, 0, message.Length, new AsyncCallback(OnSendFinish), ns);
-		}
-		catch (Exception e)
-		{
-			Debug.LogError($"{e.Message}\n{e.StackTrace}");
-		}
-	}
-
-	private void OnSendFinish(IAsyncResult result)
-	{
-		try
-		{
-			var ns = result.AsyncState as NetworkStream;
-			ns.EndWrite(result);
-			ns.Flush();
-			ns.Close();
-		}
-		catch (Exception e)
-		{
-			Debug.LogError($"{e.Message}\n{e.StackTrace}");
+				Debug.LogError("心跳命令错误");
+				break;
 		}
 	}
 }

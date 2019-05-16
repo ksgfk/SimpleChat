@@ -7,23 +7,17 @@ namespace Breakdawn.Protocol
 	{
 		private readonly int id;
 		private readonly Socket socket;
-		private int survivalCount = 5;
 		private byte[] headBuffer;
-		private byte[] cmdBuffer;
 		private byte[] bodyBuffer;
 		private int headIndex;
-		private int cmdIndex;
 		private int bodyIndex;
 		private int bodyLength;
 
 		public Socket Socket { get => socket; }
-		public byte[] HeadBuffer { get => headBuffer; }
-		public byte[] CmdBuffer { get => cmdBuffer; }
-		public int SurvivalCount { get => survivalCount; set => survivalCount = value; }
+		public byte[] BodyBuffer { get => bodyBuffer; }
 		public int ID => id;
 
 		public static int headLength = 4;
-		public static int cmdLength = 4;
 
 		public DawnSession(int id, Socket socket)
 		{
@@ -32,8 +26,6 @@ namespace Breakdawn.Protocol
 		}
 
 		protected abstract void OnConnected();
-
-		protected abstract void OnReceiveCommand();
 
 		protected abstract void OnReceiveBody();
 
@@ -73,42 +65,11 @@ namespace Breakdawn.Protocol
 					}
 					else
 					{
-						cmdBuffer = new byte[cmdLength];
-						cmdIndex = 0;
-						socket.BeginReceive(cmdBuffer, 0, cmdLength, SocketFlags.None, new AsyncCallback(ReceiveCmdMessage), result.AsyncState);
-					}
-				}
-				else
-				{
-					CloseConnect();
-				}
-			}
-			catch (Exception e)
-			{
-				DawnUtil.Log($"{e.Message}\n{e.StackTrace}", LogLevel.Error);
-			}
-		}
-
-		private void ReceiveCmdMessage(IAsyncResult result)
-		{
-			try
-			{
-				int length = socket.EndReceive(result);
-				if (length > 0)
-				{
-					cmdIndex += length;
-					if (cmdIndex < cmdLength)
-					{
-						socket.BeginReceive(cmdBuffer, cmdIndex, cmdLength - length, SocketFlags.None, new AsyncCallback(ReceiveCmdMessage), result.AsyncState);
-					}
-					else
-					{
 						int allLength = BitConverter.ToInt32(headBuffer, 0);
-						bodyLength = allLength - headLength - cmdLength;
+						bodyLength = allLength - headLength;
 						bodyBuffer = new byte[bodyLength];
 						bodyIndex = 0;
 						socket.BeginReceive(bodyBuffer, 0, bodyLength, SocketFlags.None, new AsyncCallback(ReceiveBodyMessage), result.AsyncState);
-						OnReceiveCommand();
 					}
 				}
 				else
@@ -127,8 +88,7 @@ namespace Breakdawn.Protocol
 			try
 			{
 				int length = socket.EndReceive(result);
-				int cmd = BitConverter.ToInt32(cmdBuffer, 0);
-				if (length > 0 || cmd == (int)Command.HeartbeatClient || cmd == (int)Command.HeartbeatServer)
+				if (length > 0)
 				{
 					bodyIndex += length;
 					if (bodyIndex < bodyLength)

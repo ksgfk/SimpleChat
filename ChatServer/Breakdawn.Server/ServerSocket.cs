@@ -14,7 +14,6 @@ namespace Breakdawn.Server
 		private readonly ConcurrentDictionary<int, DawnSession> clients = new ConcurrentDictionary<int, DawnSession>();
 		private readonly ConcurrentQueue<int> willClearClients = new ConcurrentQueue<int>();
 		private int clientCount = 0;
-		public static readonly int defaultServiveCount = 5;
 
 		public ConcurrentDictionary<int, DawnSession> Clients { get => clients; }
 
@@ -94,9 +93,14 @@ namespace Breakdawn.Server
 					var ns = new NetworkStream(client.Value.Socket);
 					if (!ns.CanWrite)
 					{
+						JellyWar.Logger.Warn($"会话:{client.Key} 无法发送消息");
 						continue;
 					}
-					var body = DawnUtil.AddCommand(Command.HeartbeatServer);
+					var bodyInst = new DawnMessage()
+					{
+						cmd = Command.HeartbeatServer
+					};
+					var body = DawnUtil.Serialize(bodyInst);
 					var pack = DawnUtil.AddHeadProtocol(body);
 					ns.BeginWrite(pack, 0, pack.Length, new AsyncCallback(OnSendFinish), ns);
 				}
