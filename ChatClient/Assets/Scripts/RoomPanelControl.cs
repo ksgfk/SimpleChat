@@ -44,6 +44,7 @@ public class RoomPanelControl : MonoBehaviour
 	{
 		if (chatInput.text != string.Empty)
 		{
+			/*
 			string addText = "\n  " + "<color=red>" + username + "</color>: " + chatInput.text;
 			chatText.text += addText;
 			chatInput.text = "";
@@ -51,6 +52,17 @@ public class RoomPanelControl : MonoBehaviour
 			Canvas.ForceUpdateCanvases();
 			scrollRect.verticalNormalizedPosition = 0f;
 			Canvas.ForceUpdateCanvases();
+			*/
+			var msg = new DawnMessage
+			{
+				cmd = Command.ChatMessage,
+				charMessage = chatInput.text,
+			};
+			var body = Utils.Serialize(msg);
+			var pack = Utils.AddHeadProtocol(body);
+			Utils.SendMessage(session.Socket, pack);
+			chatInput.text = "";
+			chatInput.ActivateInputField();
 		}
 	}
 

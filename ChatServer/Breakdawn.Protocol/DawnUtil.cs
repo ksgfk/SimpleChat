@@ -157,5 +157,12 @@ namespace Breakdawn.Protocol
 				Log($"{e.Message}\n{e.StackTrace}", LogLevel.Error);
 			}
 		}
+
+		public static byte[] PackageMessage<T>(T msg) where T : class
+		{
+			var body = Serialize(msg);
+			var pack = AddHeadProtocol(body);
+			return pack;
+		}
 	}
 }

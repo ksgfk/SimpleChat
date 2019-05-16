@@ -64,7 +64,7 @@ namespace Breakdawn.Server
 		{
 			while (true)
 			{
-				Thread.Sleep(10000);
+				Thread.Sleep(30000);
 				SendHeartBeatPacket();
 			}
 		}

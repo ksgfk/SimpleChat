@@ -36,9 +36,13 @@ public class ServerSession : DawnSession
 				Debug.LogError("心跳命令错误");
 				break;
 			case Command.ChatMessage:
+				Debug.LogError("聊天信息命令错误");
+				break;
+			case Command.ReceiveChat:
+				ProcessCommand.Instance.ChatQueue.Enqueue(message.charMessage);
 				break;
 			default:
-				Debug.LogError("心跳命令错误");
+				Debug.LogError("命令错误");
 				break;
 		}
 	}

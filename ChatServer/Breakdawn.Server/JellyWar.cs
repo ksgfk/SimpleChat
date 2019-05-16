@@ -35,6 +35,7 @@ namespace Breakdawn.Server
 				}
 			};
 			ss = ServerSocket.Instance;
+			_ = ProcessCommand.Instance;
 			sw.Stop();
 			Logger.Info($"Done({sw.ElapsedMilliseconds}ms)!");
 

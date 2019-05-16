@@ -6,7 +6,8 @@ namespace Breakdawn.Protocol
 	{
 		HeartbeatServer = 100,
 		HeartbeatClient = 101,
-		ChatMessage = 201
+		ChatMessage = 201,
+		ReceiveChat = 202
 	}
 
 	[Serializable]

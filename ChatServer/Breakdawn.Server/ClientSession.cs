@@ -30,11 +30,14 @@ namespace Breakdawn.Server
 					JellyWar.Logger.Error($"心跳命令错误");
 					break;
 				case Command.HeartbeatClient:
+
 					break;
 				case Command.ChatMessage:
+					ProcessCommand.Instance.ChatQueue.Enqueue(message.charMessage);
+					ProcessCommand.Instance.SendChatMessage();
 					break;
 				default:
-					JellyWar.Logger.Error($"心跳命令错误");
+					JellyWar.Logger.Error($"命令错误");
 					break;
 			}
 		}
